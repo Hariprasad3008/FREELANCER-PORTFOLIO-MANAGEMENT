@@ -46,21 +46,21 @@ export default function NavBar() {
 
   if (!user) {
     navItems = [
-      { to: "/talent", label: "Browse Talent" },
       { to: "/projects", label: "Browse Projects" },
+      { to: "/clients", label: "Browse Clients" },
+      { to: "/talent", label: "Browse Talent" },
       { to: "/about", label: "About" },
     ];
   } else if (role === "client") {
     navItems = [
       { to: "/talent", label: "Browse Talent" },
-      { to: "/projects", label: "Browse Projects" },
       { to: "/projects/new", label: "Post Project" },
       { to: "/about", label: "About" },
     ];
   } else if (role === "freelancer") {
     navItems = [
       { to: "/projects", label: "Browse Projects" },
-      { to: "/talent", label: "Browse Talent" },
+      { to: "/clients", label: "Browse Clients" },
       { to: "/about", label: "About" },
     ];
   }

@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProjects } from "../hooks/useProjects";
 import { useCurrentProfile } from "../hooks/useCurrentProfile";
 import { supabase } from "../lib/supabaseClient";
 import { useQueryClient } from "@tanstack/react-query";
+import { ensureConversation } from "../lib/conversationHelpers";
 
 export default function BrowseProjects() {
   const [search, setSearch] = useState("");
   const { data, isLoading, isError, error } = useProjects({ search });
   const { data: profile } = useCurrentProfile();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const role = profile?.role;
 
   async function handleSaveProject(projectId) {
@@ -30,6 +33,30 @@ export default function BrowseProjects() {
       console.error(insertError);
     } else {
       queryClient.invalidateQueries(["savedProjects"]);
+    }
+  }
+
+  async function handleMessageClient(client) {
+    if (!client?.id) return;
+
+    if (!profile) {
+      navigate("/auth");
+      return;
+    }
+
+    if (client.id === profile.id) {
+      alert("You can't start a conversation with yourself.");
+      return;
+    }
+
+    try {
+      const conversationId = await ensureConversation(profile.id, client.id, {
+        full_name: client.full_name,
+      });
+      navigate(`/messages?c=${conversationId}`);
+    } catch (err) {
+      console.error("Failed to start conversation:", err);
+      alert("Could not start conversation. Please try again.");
     }
   }
 
@@ -85,6 +112,10 @@ export default function BrowseProjects() {
                   <p className="text-[11px] text-slate-400 capitalize">
                     {p.status}
                   </p>
+                  <p className="text-[11px] text-slate-500">
+                    Posted by {p.client?.full_name || "Client"}
+                    {p.client?.location ? ` • ${p.client.location}` : ""}
+                  </p>
                 </div>
                 <div className="text-xs text-right">
                   <p className="text-slate-200">
@@ -121,7 +152,10 @@ export default function BrowseProjects() {
                 >
                   Save
                 </button>
-                <button className="rounded-xl bg-brand-600 px-3 py-1.5 text-[11px] font-medium hover:bg-brand-700 transition">
+                <button
+                  onClick={() => handleMessageClient(p.client)}
+                  className="rounded-xl bg-brand-600 px-3 py-1.5 text-[11px] font-medium hover:bg-brand-700 transition"
+                >
                   Message Client
                 </button>
               </div>

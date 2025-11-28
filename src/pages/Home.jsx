@@ -90,7 +90,7 @@ export default function Home() {
                     Browse Projects
                   </Link>
                   <Link
-                    to="/projects"
+                    to="/clients"
                     className="rounded-xl border border-slate-700 px-4 py-2 hover:border-brand-500 hover:text-brand-100 transition"
                   >
                     Browse Clients
@@ -238,10 +238,10 @@ export default function Home() {
               </p>
             </div>
             <Link
-              to="/projects"
+              to="/clients"
               className="text-[11px] text-brand-300 hover:text-brand-200"
             >
-              Browse projects →
+              Browse clients →
             </Link>
           </div>
 

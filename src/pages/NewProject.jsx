@@ -3,10 +3,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCurrentProfile } from "../hooks/useCurrentProfile";
 import { supabase } from "../lib/supabaseClient";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function NewProject() {
   const { data: profile, isLoading } = useCurrentProfile();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [budgetMin, setBudgetMin] = useState("");
@@ -58,6 +60,12 @@ export default function NewProject() {
       });
 
       if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({
+        queryKey: ["user-projects", profile.id],
+      });
 
       setNote("Project created!");
       navigate("/projects");

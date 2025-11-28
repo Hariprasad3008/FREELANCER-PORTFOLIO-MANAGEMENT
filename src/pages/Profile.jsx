@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCurrentProfile } from "../hooks/useCurrentProfile";
 import { useUserProjects } from "../hooks/useUserProjects";
 import { useFreelancerReviews } from "../hooks/useFreelancerReviews";
+import { ensureConversation } from "../lib/conversationHelpers";
 
 function StatCard({ label, value }) {
   return (
@@ -103,6 +104,37 @@ export default function Profile() {
     }
   }
 
+  async function updateFreelancerRatingAverage(freelancerId) {
+    const { data: ratingRows, error: ratingsError } = await supabase
+      .from("reviews")
+      .select("rating")
+      .eq("freelancer_id", freelancerId);
+
+    if (ratingsError) {
+      console.error("Failed to load ratings for average:", ratingsError);
+      return;
+    }
+
+    const avgRating =
+      ratingRows.length > 0
+        ? Number(
+            (
+              ratingRows.reduce((sum, r) => sum + (r.rating || 0), 0) /
+              ratingRows.length
+            ).toFixed(1)
+          )
+        : null;
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ rating: avgRating })
+      .eq("id", freelancerId);
+
+    if (updateError) {
+      console.error("Failed to update profile rating:", updateError);
+    }
+  }
+
   // ---------- Submit review (client reviews freelancer ONCE) ----------
   async function handleSubmitReview(e) {
     e.preventDefault();
@@ -139,6 +171,12 @@ export default function Profile() {
         setReviewNote("Review submitted!");
         setComment("");
         setRating(5);
+        if (profile?.id) {
+          await updateFreelancerRatingAverage(profile.id);
+          queryClient.invalidateQueries(["profile", profile.id]);
+        }
+        queryClient.invalidateQueries(["freelancers"]);
+        queryClient.invalidateQueries(["featured-freelancers"]);
         queryClient.invalidateQueries(["freelancer-reviews", profile.id]);
       }
     } catch (err) {
@@ -155,66 +193,14 @@ export default function Profile() {
       return;
     }
 
-    // Prevent messaging yourself
-    if (user.id === profile.id) {
-      alert("You can't start a conversation with yourself.");
-      return;
-    }
-
     try {
-      // 1. Find all conversations current user participates in
-      const { data: myParts, error: myErr } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("user_id", user.id);
-
-      if (myErr) throw myErr;
-
-      const myConversationIds = myParts.map((p) => p.conversation_id);
-      let conversationId = null;
-
-      if (myConversationIds.length > 0) {
-        // 2. Check if the other user is already in any of those conversations
-        const { data: shared, error: sharedErr } = await supabase
-          .from("conversation_participants")
-          .select("conversation_id")
-          .in("conversation_id", myConversationIds)
-          .eq("user_id", profile.id);
-
-        if (sharedErr) throw sharedErr;
-
-        if (shared && shared.length > 0) {
-          conversationId = shared[0].conversation_id;
-        }
-      }
-
-      // 3. If no conversation exists, create a new one and add both users
-      if (!conversationId) {
-        const { data: newConv, error: convErr } = await supabase
-          .from("conversations")
-          .insert({})
-          .select("id")
-          .single();
-
-        if (convErr) throw convErr;
-
-        conversationId = newConv.id;
-
-        const { error: partErr } = await supabase
-          .from("conversation_participants")
-          .insert([
-            { conversation_id: conversationId, user_id: user.id },
-            { conversation_id: conversationId, user_id: profile.id },
-          ]);
-
-        if (partErr) throw partErr;
-      }
-
-      // 4. Navigate to the conversation
+      const conversationId = await ensureConversation(user.id, profile.id, {
+        full_name: profile.full_name,
+      });
       navigate(`/messages?c=${conversationId}`);
     } catch (err) {
       console.error("Failed to start conversation:", err);
-      alert("Could not start conversation. Please try again.");
+      alert(err.message || "Could not start conversation. Please try again.");
     }
   }
 
@@ -235,6 +221,56 @@ export default function Profile() {
     return <p className="text-xs text-slate-400">Profile not found.</p>;
   }
 
+  const totalProjects = userProjects?.length ?? 0;
+  const openProjects =
+    userProjects?.filter((p) => p.status === "open").length ?? 0;
+  const closedProjects = Math.max(totalProjects - openProjects, 0);
+  const memberSince = profile.created_at
+    ? new Date(profile.created_at)
+    : null;
+
+  const freelancerStats = [
+    {
+      label: "Projects Completed",
+      value: profile.projects_completed ?? 0,
+    },
+    {
+      label: "Job Success",
+      value: profile.success_rate ? `${profile.success_rate}%` : "Not set",
+    },
+    {
+      label: "Rating",
+      value: profile.rating ? `${profile.rating} ★` : "No rating",
+    },
+    {
+      label: "Availability",
+      value: profile.availability_status || "Not set",
+    },
+  ];
+
+  const clientStats = [
+    { label: "Open Projects", value: openProjects },
+    { label: "Projects Posted", value: totalProjects },
+    { label: "Closed Projects", value: closedProjects },
+    {
+      label: "Member Since",
+      value: memberSince ? memberSince.getFullYear() : "Unknown",
+    },
+  ];
+
+  const statsToRender = isFreelancer ? freelancerStats : clientStats;
+
+  const genderLabel = (() => {
+    if (!profile.gender) return null;
+    const map = {
+      male: "Male",
+      female: "Female",
+      "non-binary": "Non-binary",
+      other: "Other",
+    };
+    return map[profile.gender] || profile.gender;
+  })();
+
   // ---------- MAIN RENDER ----------
   return (
     <div className="space-y-6">
@@ -254,13 +290,26 @@ export default function Profile() {
             <p className="text-xs text-slate-400">
               {profile.title || "No title"} •{" "}
               {profile.location || "Location not set"}
+              {profile.category ? ` • ${profile.category}` : ""}
+              {genderLabel ? ` • ${genderLabel}` : ""}
             </p>
             <p className="mt-1 text-xs text-emerald-300">
-              {profile.experience_level || "N/A"} •{" "}
-              {profile.hourly_rate
-                ? `$${profile.hourly_rate}/hr`
-                : "Rate not set"}{" "}
-              • {profile.rating ? `${profile.rating} ★` : "No rating yet"}
+              {isFreelancer ? (
+                <>
+                  {profile.experience_level || "Experience not set"} •{" "}
+                  {profile.availability_status || "Availability unknown"} •{" "}
+                  {profile.hourly_rate
+                    ? `$${profile.hourly_rate}/hr`
+                    : "Rate not set"}
+                </>
+              ) : (
+                <>
+                  {openProjects} open projects • {totalProjects} total •{" "}
+                  {memberSince
+                    ? `Member since ${memberSince.getFullYear()}`
+                    : "New to the platform"}
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -310,11 +359,15 @@ export default function Profile() {
 
           {/* Skills */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-xs space-y-2">
-            <h2 className="text-sm font-semibold">Skills</h2>
+            <h2 className="text-sm font-semibold">
+              {isFreelancer ? "Skills" : "Hiring focus"}
+            </h2>
             <div className="flex flex-wrap gap-1 text-[10px]">
               {(profile.skills || []).length === 0 && (
                 <p className="text-[11px] text-slate-400">
-                  No skills listed yet.
+                  {isFreelancer
+                    ? "No skills listed yet."
+                    : "No hiring focus listed yet."}
                 </p>
               )}
               {(profile.skills || []).map((s) => (
@@ -332,28 +385,9 @@ export default function Profile() {
         {/* Stats */}
         <div className="space-y-4 text-xs">
           <div className="grid gap-4 md:grid-cols-2">
-            <StatCard
-              label="Projects Completed"
-              value={profile.projects_completed ?? 0}
-            />
-            <StatCard
-              label="Job Success"
-              value={
-                profile.success_rate ? `${profile.success_rate}%` : "Not set"
-              }
-            />
-            <StatCard
-              label="Avg Response Time"
-              value={
-                profile.response_time_minutes
-                  ? `${profile.response_time_minutes} min`
-                  : "Unknown"
-              }
-            />
-            <StatCard
-              label="Rating"
-              value={profile.rating ? `${profile.rating} ★` : "No rating"}
-            />
+            {statsToRender.map((stat) => (
+              <StatCard key={stat.label} label={stat.label} value={stat.value} />
+            ))}
           </div>
         </div>
       </section>
@@ -412,6 +446,16 @@ export default function Profile() {
                     </span>
                   ))}
                 </div>
+                {isOwnProfile && (
+                  <div className="flex gap-2 pt-2">
+                    <Link
+                      to={`/projects/${p.id}/edit`}
+                      className="text-[11px] text-brand-300 hover:text-brand-100"
+                    >
+                      Edit project
+                    </Link>
+                  </div>
+                )}
               </article>
             ))}
           </div>

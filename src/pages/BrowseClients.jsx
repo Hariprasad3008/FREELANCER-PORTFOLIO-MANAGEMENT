@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useFreelancers } from "../hooks/useFreelancers";
+import { Link, useNavigate } from "react-router-dom";
+import { useClients } from "../hooks/useClients";
 import { useCurrentProfile } from "../hooks/useCurrentProfile";
-import { supabase } from "../lib/supabaseClient";
-import { useQueryClient } from "@tanstack/react-query";
+import { ensureConversation } from "../lib/conversationHelpers";
 
 function formatGender(value) {
   if (!value) return null;
@@ -15,40 +14,39 @@ function formatGender(value) {
   };
   return map[value] || value;
 }
-
-export default function BrowseTalent() {
+export default function BrowseClients() {
   const [search, setSearch] = useState("");
-  const [experience, setExperience] = useState("any");
-  const queryClient = useQueryClient();
+  const [location, setLocation] = useState("");
+  const navigate = useNavigate();
 
   const { data: profile } = useCurrentProfile();
-  const role = profile?.role;
 
-  const { data, isLoading, isError, error } = useFreelancers({
+  const { data, isLoading, isError, error } = useClients({
     search,
-    experience,
+    location,
   });
 
-  async function handleSaveFreelancer(freelancerId) {
+  async function handleMessageClient(client) {
+    if (!client?.id) return;
+
     if (!profile) {
-      alert("Please log in as a client to save freelancers.");
-      return;
-    }
-    if (role !== "client") {
-      alert("Only clients can save freelancers.");
+      navigate("/auth");
       return;
     }
 
-    const { error: insertError } = await supabase.from("saved_profiles").insert({
-      client_id: profile.id,
-      freelancer_id: freelancerId,
-    });
+    if (client.id === profile.id) {
+      alert("You can't start a conversation with yourself.");
+      return;
+    }
 
-    if (insertError && insertError.code !== "23505") {
-      // 23505 = unique violation (already saved)
-      console.error(insertError);
-    } else {
-      queryClient.invalidateQueries(["savedProfiles"]);
+    try {
+      const conversationId = await ensureConversation(profile.id, client.id, {
+        full_name: client.full_name,
+      });
+      navigate(`/messages?c=${conversationId}`);
+    } catch (err) {
+      console.error("Failed to start conversation:", err);
+      alert("Could not start a conversation. Please try again.");
     }
   }
 
@@ -56,23 +54,23 @@ export default function BrowseTalent() {
     <div className="space-y-6">
       <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Browse Freelancers</h1>
+          <h1 className="text-xl font-semibold">Browse Clients</h1>
           <p className="text-xs text-slate-400">
-            Filter by skills, experience level, rate, and availability.
+            Connect with active clients to learn more about their needs before
+            you apply.
           </p>
         </div>
       </header>
 
-      {/* Filters */}
       <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 space-y-3 text-xs">
-        <div className="flex flex-wrap gap-3">
-          <div className="flex-1 min-w-[180px]">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
             <label className="block text-[11px] text-slate-400 mb-1">
               Search
             </label>
             <input
               type="text"
-              placeholder="React, UI designer, data engineer..."
+              placeholder="Product owner, fintech, startup..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs outline-none focus:border-brand-500"
@@ -80,73 +78,75 @@ export default function BrowseTalent() {
           </div>
           <div>
             <label className="block text-[11px] text-slate-400 mb-1">
-              Experience
+              Location
             </label>
-            <select
-              value={experience}
-              onChange={(e) => setExperience(e.target.value)}
-              className="rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs outline-none focus:border-brand-500"
-            >
-              <option value="any">Any</option>
-              <option value="junior">Junior</option>
-              <option value="mid">Mid-level</option>
-              <option value="senior">Senior</option>
-            </select>
+            <input
+              type="text"
+              placeholder="Remote, Bengaluru, London..."
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-xs outline-none focus:border-brand-500"
+            />
           </div>
         </div>
       </section>
 
-      {/* Data states */}
       {isLoading && (
-        <p className="text-xs text-slate-400">Loading freelancers...</p>
+        <p className="text-xs text-slate-400">Loading clients...</p>
       )}
       {isError && (
         <p className="text-xs text-red-400">Error: {error.message}</p>
       )}
 
-      {/* Talent List */}
       {!isLoading && data && (
         <section className="space-y-3">
           {data.length === 0 && (
-            <p className="text-xs text-slate-400">No freelancers found.</p>
+            <p className="text-xs text-slate-400">No clients found.</p>
           )}
-          {data.map((t) => (
+          {data.map((client) => {
+            const totalPosted = client.projectStats?.total ?? 0;
+            const openProjects = client.projectStats?.open ?? 0;
+
+            return (
             <article
-              key={t.id}
+              key={client.id}
               className="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center"
             >
               <div className="flex items-center gap-3 flex-1">
                 <div className="h-12 w-12 rounded-2xl border border-slate-700 bg-slate-800 flex items-center justify-center text-xs font-semibold">
-                  {t.full_name
+                  {client.full_name
                     ?.split(" ")
                     .map((n) => n[0])
-                    .join("") || "F"}
+                    .join("") || "C"}
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold">
-                    {t.full_name || "Unnamed"}
+                    {client.full_name || "Unnamed client"}
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    {t.title || "Freelancer"} • {t.location || "Remote"}
-                    {t.category ? ` • ${t.category}` : ""}
-                    {t.gender ? ` • ${formatGender(t.gender)}` : ""}
+                    {client.title || "Hiring manager"} •{" "}
+                    {client.location || "Remote"}
+                    {client.category ? ` • ${client.category}` : ""}
+                    {client.gender ? ` • ${formatGender(client.gender)}` : ""}
                   </p>
                   <p className="mt-1 text-[11px] text-emerald-300">
-                    {t.experience_level || "N/A"} •{" "}
-                    {t.hourly_rate
-                      ? `$${t.hourly_rate}/hr`
-                      : "Rate on request"}
+                    {totalPosted} posted projects
+                    {openProjects > 0 ? ` • ${openProjects} hiring now` : ""} •{" "}
+                    Member since{" "}
+                    {client.created_at
+                      ? new Date(client.created_at).getFullYear()
+                      : "—"}
                   </p>
                 </div>
               </div>
 
               <div className="flex-1 text-xs text-slate-300">
-                <p>
-                  {(t.projects_completed ?? 0) + " projects"} •{" "}
-                  {(t.rating ?? "No rating") + " ★"}
+                <p className="line-clamp-3">
+                  {client.bio ||
+                    "No description yet, but actively hiring on the platform."}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1 text-[10px]">
-                  {(t.skills || []).map((skill) => (
+                  {(client.skills || []).map((skill) => (
                     <span
                       key={skill}
                       className="rounded-full bg-slate-800 px-2 py-0.5"
@@ -154,27 +154,34 @@ export default function BrowseTalent() {
                       {skill}
                     </span>
                   ))}
+                  {(client.skills || []).length === 0 && (
+                    <span className="text-[11px] text-slate-500">
+                      No hiring focus listed
+                    </span>
+                  )}
                 </div>
               </div>
 
               <div className="flex items-center gap-2 text-xs">
                 <Link
-                  to={`/profile/${t.id}`}
+                  to={`/profile/${client.id}`}
                   className="rounded-xl bg-brand-600 px-3 py-1.5 text-[11px] font-medium hover:bg-brand-700 transition"
                 >
                   View Profile
                 </Link>
                 <button
-                  onClick={() => handleSaveFreelancer(t.id)}
+                  onClick={() => handleMessageClient(client)}
                   className="rounded-xl border border-slate-700 px-3 py-1.5 text-[11px] hover:border-brand-500 hover:text-brand-100 transition"
                 >
-                  Save
+                  Message
                 </button>
               </div>
             </article>
-          ))}
+          );
+          })}
         </section>
       )}
     </div>
   );
 }
+
