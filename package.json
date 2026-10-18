@@ -1,0 +1,19 @@
+{
+  "name": "freelancer-marketplace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-Stack Freelancer Marketplace & Portfolio Directory with Supabase PostgreSQL, React 19, Express, and Socket.IO",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "db:migrate": "npm run db:migrate --prefix server",
+    "db:seed": "npm run db:seed --prefix server",
+    "build": "npm run build --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
