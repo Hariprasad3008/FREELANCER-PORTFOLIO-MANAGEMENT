@@ -26,11 +26,11 @@ import {
 } from 'lucide-react';
 
 const CATEGORIES = [
-  { name: 'Web Development', icon: Code, count: '120+ Experts', color: 'from-blue-500/10 to-indigo-500/10 text-indigo-600' },
-  { name: 'Design & Creative', icon: Palette, count: '85+ Designers', color: 'from-purple-500/10 to-pink-500/10 text-purple-600' },
-  { name: 'AI & Machine Learning', icon: Brain, count: '45+ Specialists', color: 'from-emerald-500/10 to-teal-500/10 text-emerald-600' },
-  { name: 'Mobile Development', icon: Smartphone, count: '60+ Engineers', color: 'from-amber-500/10 to-orange-500/10 text-amber-600' },
-  { name: 'DevOps & Cloud', icon: Cloud, count: '50+ Architects', color: 'from-sky-500/10 to-cyan-500/10 text-sky-600' },
+  { name: 'Web Development', icon: Code, color: 'from-blue-500/10 to-indigo-500/10 text-indigo-600' },
+  { name: 'Design & Creative', icon: Palette, color: 'from-purple-500/10 to-pink-500/10 text-purple-600' },
+  { name: 'AI & Machine Learning', icon: Brain, color: 'from-emerald-500/10 to-teal-500/10 text-emerald-600' },
+  { name: 'Mobile Development', icon: Smartphone, color: 'from-amber-500/10 to-orange-500/10 text-amber-600' },
+  { name: 'DevOps & Cloud', icon: Cloud, color: 'from-sky-500/10 to-cyan-500/10 text-sky-600' },
 ];
 
 export const Home = () => {
@@ -78,7 +78,7 @@ export const Home = () => {
                     </span>
                   </div>
                   <p className="text-xs text-slate-500">
-                    {user?.location || 'San Francisco, CA'} &bull; Hiring & Project Workspace
+                    {user?.location ? `${user.location} • ` : ''}Hiring & Project Workspace
                   </p>
                 </div>
               </div>
@@ -120,7 +120,7 @@ export const Home = () => {
                     </span>
                   </div>
                   <p className="text-xs text-slate-500">
-                    {user?.title || 'Professional Specialist'} &bull; <span className="font-semibold text-slate-700">${user?.hourly_rate || 0}/hr</span> &bull; {user?.location || 'Remote'}
+                    {user?.title || 'Professional Specialist'} &bull; <span className="font-semibold text-slate-700">₹{user?.hourly_rate || 0}/hr</span> &bull; {user?.location || 'Remote'}
                   </p>
                 </div>
               </div>
@@ -181,40 +181,6 @@ export const Home = () => {
             </button>
           </form>
 
-          {/* Popular Search Tags */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
-            <span className="font-semibold text-slate-700">Popular:</span>
-            {['React', 'Figma', 'Python LLMs', 'Tailwind', 'DevOps', 'Mobile'].map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => navigate(`/talent?search=${encodeURIComponent(tag)}`)}
-                className="px-2.5 py-1 rounded-lg bg-white/70 hover:bg-white border border-slate-200/80 text-slate-600 transition-colors"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-
-          {/* Stats Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 pt-8 border-t border-slate-200/60">
-            <div>
-              <span className="text-3xl font-extrabold text-slate-900 block">500+</span>
-              <span className="text-xs text-slate-500 font-medium">Verified Freelancers</span>
-            </div>
-            <div>
-              <span className="text-3xl font-extrabold text-brand-600 block">99.4%</span>
-              <span className="text-xs text-slate-500 font-medium">Project Success Rate</span>
-            </div>
-            <div>
-              <span className="text-3xl font-extrabold text-slate-900 block">$2.5M+</span>
-              <span className="text-xs text-slate-500 font-medium">Earned by Talent</span>
-            </div>
-            <div>
-              <span className="text-3xl font-extrabold text-emerald-600 block">&lt; 15 min</span>
-              <span className="text-xs text-slate-500 font-medium">Average Match Time</span>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -249,7 +215,9 @@ export const Home = () => {
                   <h3 className="font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors">
                     {cat.name}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1">{cat.count}</p>
+                  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1 group-hover:text-brand-600 transition-colors">
+                    Explore Talent &rarr;
+                  </p>
                 </div>
               </div>
             );

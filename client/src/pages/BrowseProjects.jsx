@@ -233,12 +233,12 @@ export const BrowseProjects = () => {
             {/* Budget Range */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-2">
-                Budget Range ($)
+                Budget Range (₹)
               </label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  placeholder="Min $"
+                  placeholder="Min ₹"
                   value={minBudget}
                   onChange={(e) => setMinBudget(e.target.value)}
                   className="input-field text-xs py-1.5"
@@ -246,7 +246,7 @@ export const BrowseProjects = () => {
                 <span className="text-slate-400 text-xs">-</span>
                 <input
                   type="number"
-                  placeholder="Max $"
+                  placeholder="Max ₹"
                   value={maxBudget}
                   onChange={(e) => setMaxBudget(e.target.value)}
                   className="input-field text-xs py-1.5"

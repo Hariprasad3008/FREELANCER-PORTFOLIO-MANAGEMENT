@@ -18,7 +18,8 @@ export const getSocket = (token) => {
   }
 
   // Initialize Socket.IO connection
-  socket = io(window.location.origin, {
+  const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+  socket = io(socketUrl, {
     auth: {
       token: currentToken,
     },

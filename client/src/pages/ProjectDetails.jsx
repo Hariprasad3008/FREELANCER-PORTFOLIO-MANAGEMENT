@@ -10,7 +10,7 @@ import { ProposalModal } from '../components/proposals/ProposalModal.jsx';
 import { ProposalsList } from '../components/proposals/ProposalsList.jsx';
 import {
   Clock,
-  DollarSign,
+  IndianRupee,
   Bookmark,
   MessageSquare,
   Building2,
@@ -99,12 +99,12 @@ export const ProjectDetails = () => {
 
   const formatBudget = () => {
     if (project.budget_type?.toUpperCase() === 'HOURLY') {
-      return `$${project.budget_min || '0'} - $${project.budget_max || '0'} / hr`;
+      return `₹${project.budget_min || '0'} - ₹${project.budget_max || '0'} / hr`;
     }
     if (project.budget_min && project.budget_max) {
-      return `$${parseFloat(project.budget_min).toLocaleString()} - $${parseFloat(project.budget_max).toLocaleString()}`;
+      return `₹${parseFloat(project.budget_min).toLocaleString()} - ₹${parseFloat(project.budget_max).toLocaleString()}`;
     }
-    return `$${parseFloat(project.budget_max || project.budget_min || 0).toLocaleString()}`;
+    return `₹${parseFloat(project.budget_max || project.budget_min || 0).toLocaleString()}`;
   };
 
   return (

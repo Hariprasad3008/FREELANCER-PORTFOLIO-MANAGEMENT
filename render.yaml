@@ -1,0 +1,19 @@
+services:
+  # Option 1: Full-Stack Monolithic Deployment (Serves Backend API + Socket.IO + React Client from 1 Service)
+  - type: web
+    name: freelancer-fullstack
+    runtime: node
+    plan: free
+    buildCommand: npm run build:all
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false

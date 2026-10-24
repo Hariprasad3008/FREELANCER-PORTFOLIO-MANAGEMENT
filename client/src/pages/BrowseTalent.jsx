@@ -10,7 +10,7 @@ import {
   RotateCcw,
   Users,
   Filter,
-  DollarSign,
+  IndianRupee,
   Award,
   Clock
 } from 'lucide-react';
@@ -198,12 +198,12 @@ export const BrowseTalent = () => {
             {/* Hourly Rate Range */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-2">
-                Hourly Rate ($/hr)
+                Hourly Rate (₹/hr)
               </label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
-                  placeholder="Min"
+                  placeholder="Min ₹"
                   value={minRate}
                   onChange={(e) => setMinRate(e.target.value)}
                   className="input-field text-xs py-1.5"
@@ -211,7 +211,7 @@ export const BrowseTalent = () => {
                 <span className="text-slate-400 text-xs">-</span>
                 <input
                   type="number"
-                  placeholder="Max"
+                  placeholder="Max ₹"
                   value={maxRate}
                   onChange={(e) => setMaxRate(e.target.value)}
                   className="input-field text-xs py-1.5"

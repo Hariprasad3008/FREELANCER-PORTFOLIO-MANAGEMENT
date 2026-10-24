@@ -102,7 +102,7 @@ export const FreelancerCard = ({ freelancer }) => {
         <div className="grid grid-cols-3 gap-2 py-3 px-3 bg-slate-50/80 rounded-xl mb-4 border border-slate-100 text-center">
           <div>
             <span className="text-[10px] text-slate-400 uppercase font-semibold block">Rate</span>
-            <span className="text-sm font-bold text-slate-900">${freelancer.hourly_rate}/hr</span>
+            <span className="text-sm font-bold text-slate-900">₹{freelancer.hourly_rate}/hr</span>
           </div>
           <div className="border-x border-slate-200/60">
             <span className="text-[10px] text-slate-400 uppercase font-semibold block">Rating</span>

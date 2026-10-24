@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useProjectProposals, useProposalMutations } from '../../hooks/useProposals.js';
 import { StarRating } from '../common/StarRating.jsx';
-import { CheckCircle2, Clock, DollarSign, Check, Loader2, MessageSquare } from 'lucide-react';
+import { CheckCircle2, Clock, IndianRupee, Check, Loader2, MessageSquare } from 'lucide-react';
 
 export const ProposalsList = ({ projectId }) => {
   const { data, isLoading, isError, error } = useProjectProposals(projectId);
@@ -82,7 +82,7 @@ export const ProposalsList = ({ projectId }) => {
 
             <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-1">
               <span className="text-base font-extrabold text-slate-900">
-                ${parseFloat(prop.bid_amount).toLocaleString()}
+                ₹{parseFloat(prop.bid_amount).toLocaleString()}
               </span>
               <span className="text-xs text-slate-500 flex items-center gap-1">
                 <Clock size={12} /> in {prop.estimated_days} days

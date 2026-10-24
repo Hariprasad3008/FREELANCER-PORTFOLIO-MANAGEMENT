@@ -14,7 +14,7 @@ import {
   MapPin,
   Mail,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Briefcase,
   CheckCircle,
   MessageSquare,
@@ -194,7 +194,7 @@ export const Profile = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-100 text-center">
               <div className="p-3 rounded-2xl bg-slate-50">
                 <span className="text-xs text-slate-400 font-semibold uppercase block">Hourly Rate</span>
-                <span className="text-xl font-bold text-slate-900">${profile.hourly_rate} / hr</span>
+                <span className="text-xl font-bold text-slate-900">₹{profile.hourly_rate} / hr</span>
               </div>
               <div className="p-3 rounded-2xl bg-slate-50">
                 <span className="text-xs text-slate-400 font-semibold uppercase block">Client Rating</span>

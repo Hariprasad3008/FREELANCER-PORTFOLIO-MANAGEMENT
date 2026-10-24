@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../common/Modal.jsx';
 import { useProposalMutations } from '../../hooks/useProposals.js';
-import { DollarSign, Clock, Send, Loader2 } from 'lucide-react';
+import { IndianRupee, Clock, Send, Loader2 } from 'lucide-react';
 
 export const ProposalModal = ({ isOpen, onClose, project }) => {
   const [bidAmount, setBidAmount] = useState('');
@@ -48,7 +48,7 @@ export const ProposalModal = ({ isOpen, onClose, project }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Your Bid Amount ($) *
+              Your Bid Amount (₹) *
             </label>
             <div className="relative">
               <input
@@ -60,10 +60,10 @@ export const ProposalModal = ({ isOpen, onClose, project }) => {
                 onChange={(e) => setBidAmount(e.target.value)}
                 required
               />
-              <DollarSign size={16} className="absolute left-3 top-3 text-slate-400" />
+              <IndianRupee size={16} className="absolute left-3 top-3 text-slate-400" />
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              Client Budget: ${project?.budget_min || '0'} - ${project?.budget_max || '0'}
+              Client Budget: ₹{project?.budget_min || '0'} - ₹{project?.budget_max || '0'}
             </p>
           </div>
 

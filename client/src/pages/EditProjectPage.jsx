@@ -177,7 +177,7 @@ export default function EditProjectPage() {
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-slate-300">Min Budget ($)</label>
+            <label className="text-[11px] font-medium text-slate-300">Min Budget (₹)</label>
             <input
               type="number"
               value={budgetMin}
@@ -187,7 +187,7 @@ export default function EditProjectPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-slate-300">Max Budget ($)</label>
+            <label className="text-[11px] font-medium text-slate-300">Max Budget (₹)</label>
             <input
               type="number"
               value={budgetMax}

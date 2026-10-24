@@ -77,7 +77,7 @@ export default function SavedProfiles() {
                     </div>
 
                     <p className="text-xs text-emerald-400 font-semibold">
-                      {f.hourly_rate ? `$${f.hourly_rate}/hr` : "Rate on request"} •{" "}
+                      {f.hourly_rate ? `₹${f.hourly_rate}/hr` : "Rate on request"} •{" "}
                       <span className="text-amber-300">{f.rating ? `${f.rating} ★` : "New"}</span>
                     </p>
                   </div>
@@ -134,7 +134,7 @@ export default function SavedProfiles() {
                     <p className="text-xs text-slate-400 line-clamp-2">{p.description}</p>
                     <p className="text-xs text-emerald-400 font-semibold">
                       {p.budget_min || p.budget_max
-                        ? `$${p.budget_min || ""}${p.budget_min && p.budget_max ? " - $" : ""}${p.budget_max || ""}`
+                        ? `₹${p.budget_min || ""}${p.budget_min && p.budget_max ? " - ₹" : ""}${p.budget_max || ""}`
                         : "Budget not set"}
                     </p>
                   </div>

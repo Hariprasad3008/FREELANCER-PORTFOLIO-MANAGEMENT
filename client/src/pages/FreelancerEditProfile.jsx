@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useProfileMutations } from '../hooks/useProfile.js';
 import {
   User,
-  DollarSign,
+  IndianRupee,
   Clock,
   MapPin,
   Image,
@@ -284,14 +284,14 @@ export const FreelancerEditProfile = () => {
               {/* 2. Rates, Experience & Availability */}
               <div className="pt-6 border-t border-slate-100">
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                  <DollarSign size={16} className="text-purple-600" />
+                  <IndianRupee size={16} className="text-purple-600" />
                   2. Rates, Seniority & Availability
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-5">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      Hourly Rate ($/hr) *
+                      Hourly Rate (₹/hr) *
                     </label>
                     <div className="relative">
                       <input
@@ -303,7 +303,7 @@ export const FreelancerEditProfile = () => {
                         onChange={(e) => setHourlyRate(e.target.value)}
                         required
                       />
-                      <DollarSign size={14} className="absolute left-2.5 top-3 text-slate-400" />
+                      <IndianRupee size={14} className="absolute left-2.5 top-3 text-slate-400" />
                     </div>
                   </div>
 
@@ -598,7 +598,7 @@ export const FreelancerEditProfile = () => {
               <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 text-center mb-4">
                 <div className="p-2 rounded-xl bg-slate-50/80">
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Rate</span>
-                  <span className="text-xs font-extrabold text-slate-900">${hourlyRate}/hr</span>
+                  <span className="text-xs font-extrabold text-slate-900">₹{hourlyRate}/hr</span>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-50/80">
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Level</span>
@@ -632,10 +632,10 @@ export const FreelancerEditProfile = () => {
             <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-900 to-indigo-950 text-white shadow-md">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-extrabold text-purple-300">Estimated Monthly Earnings</span>
-                <span className="text-xs font-black text-emerald-400">${(hourlyRate * 30 * 4).toLocaleString()}</span>
+                <span className="text-xs font-black text-emerald-400">₹{(hourlyRate * 30 * 4).toLocaleString()}</span>
               </div>
               <p className="text-[11px] text-purple-200 leading-relaxed">
-                Based on 30 billable client hours per week at your current rate of ${hourlyRate}/hr.
+                Based on 30 billable client hours per week at your current rate of ₹{hourlyRate}/hr.
               </p>
             </div>
           </div>

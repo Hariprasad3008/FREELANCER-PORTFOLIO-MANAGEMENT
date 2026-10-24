@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SkillBadge } from '../common/Badge.jsx';
-import { Clock, DollarSign, Bookmark, ArrowRight, Building2, MapPin, Users } from 'lucide-react';
+import { Clock, IndianRupee, Bookmark, ArrowRight, Building2, MapPin, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useSavedMutations, useSavedIds } from '../../hooks/useSaved.js';
 
@@ -29,15 +29,15 @@ export const ProjectCard = ({ project }) => {
 
   const formatBudget = () => {
     if (project.budget_type === 'hourly') {
-      return `$${project.budget_min || '0'} - $${project.budget_max || '0'} / hr`;
+      return `₹${project.budget_min || '0'} - ₹${project.budget_max || '0'} / hr`;
     }
     if (project.budget_min && project.budget_max) {
-      return `$${project.budget_min.toLocaleString()} - $${project.budget_max.toLocaleString()}`;
+      return `₹${project.budget_min.toLocaleString()} - ₹${project.budget_max.toLocaleString()}`;
     }
     if (project.budget_max) {
-      return `Up to $${project.budget_max.toLocaleString()}`;
+      return `Up to ₹${project.budget_max.toLocaleString()}`;
     }
-    return `$${project.budget_min?.toLocaleString() || 'Negotiable'}`;
+    return project.budget_min ? `₹${project.budget_min.toLocaleString()}` : 'Negotiable';
   };
 
   const formatDeadline = (dateStr) => {

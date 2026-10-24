@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectMutations } from '../hooks/useProjects.js';
-import { Briefcase, DollarSign, Calendar, Plus, X, ArrowLeft, Loader2 } from 'lucide-react';
+import { Briefcase, IndianRupee, Calendar, Plus, X, ArrowLeft, Loader2 } from 'lucide-react';
 
 const CATEGORIES = [
   'Web Development',
@@ -142,12 +142,12 @@ export const NewProject = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Min Budget ($)
+                Min Budget (₹)
               </label>
               <input
                 type="number"
                 className="input-field"
-                placeholder={budgetType === 'hourly' ? 'e.g. 50' : 'e.g. 1500'}
+                placeholder={budgetType === 'hourly' ? 'e.g. 500' : 'e.g. 15000'}
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value)}
               />
@@ -155,12 +155,12 @@ export const NewProject = () => {
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Max Budget ($)
+                Max Budget (₹)
               </label>
               <input
                 type="number"
                 className="input-field"
-                placeholder={budgetType === 'hourly' ? 'e.g. 95' : 'e.g. 4000'}
+                placeholder={budgetType === 'hourly' ? 'e.g. 1500' : 'e.g. 50000'}
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value)}
               />
